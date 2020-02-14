@@ -1,7 +1,7 @@
 import gen_dummy as gen
 import matplotlib.pyplot as plt
 
-gen_now = gen.gen_dummy(100, 1, 254, 170, 180, 0.017)
+gen_now = gen.gen_dummy(100, 1, 254, 170, 180, 0.008)
 hist = gen_now.get_hist_spot(True)
 print(hist)
 
@@ -13,5 +13,5 @@ for i in range(len(hist)):
 plt.legend("RGB")
 plt.show()
 
-gen_now.generate_dataset(8000, 0.6, "test3")
+gen_now.generate_dataset(10000, 0.6, "test6_odd_0.008_n_10000")
 # print(gen_now.get_population("test"))

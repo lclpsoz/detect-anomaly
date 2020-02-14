@@ -10,12 +10,15 @@ class ga:
         self.mutation_factor = kwargs.get('mutation_factor')
         self.population_size = kwargs.get('population_size')
         self.generations = kwargs.get('generations')
+        self.print = kwargs.get('print')
         if(not self.mutation_factor):
             self.mutation_factor = 0.01
         if(not self.population_size):
             self.population_size = 100
         if(not self.generations):
             self.generations = 100
+        if(not self.print):
+            self.print = False
 
     def __generate_indv(self):
         gene = np.array([[random.uniform(-1, 1) for x in range(256)] for x in range(3)])
@@ -38,10 +41,11 @@ class ga:
     
     def __mutation(self, indv):
         gene = indv['gene']
-        for i in range(len(gene)):
-            for j in range(len(gene[0])):
-                if(random.random() < self.mutation_factor):
-                    gene[i][j] = random.uniform(-1, 1)
+        total_cells = len(gene)*len(gene[0])
+        amount_to_mutate = round((total_cells*self.mutation_factor)*random.normalvariate(0, 2))
+        # print(amount_to_mutate)
+        for i in range(amount_to_mutate):
+            gene[random.randint(0, len(gene)-1)][random.randint(0, len(gene[0])-1)] = random.uniform(-1, 1)
         indv['fitness'] = self.__fitness(gene)
         return indv
 
@@ -59,10 +63,19 @@ class ga:
 
         return self.__mutation(descendent)
 
+    def __func(self, indv):
+        return -indv['fitness']
+
     def __selection(self):
         total_fitness = sum([x['fitness'] for x in self.population])
         # print(total_fitness)
         offspring = []
+        elitism = []
+        # print([x['fitness'] for x in self.population])
+        self.population.sort(key=self.__func)
+        # print([x['fitness'] for x in self.population])
+        for i in range(round(0.1*self.population_size)):
+            elitism.append(self.population[i])
         for i in range(self.population_size):
             acu = 0
             rand_val_1 = random.uniform(0, total_fitness)
@@ -77,34 +90,53 @@ class ga:
                 if(indv1 != None and indv2 != None):
                     break
             offspring.append(self.__crossover(indv1, indv2))
-
         self.population = offspring
+        self.population.sort(key=self.__func)
+        for i in range(round(0.1*self.population_size)):
+            del(self.population[-1])
+        self.population.extend(elitism)
                     
 
     def run(self):
-        # seed = random.randint(0, 2**64)
-        seed = 10854117184287281751
-        print("seed =", seed)
+        seed = random.randint(0, 2**64)
+        # seed = 10854117184287281751
+        if(self.print):
+            print("seed =", seed)
         random.seed(seed)
         self.population = []
-        print("Generate population")
+        if(self.print):
+            print("Generate population")
         for i in range(self.population_size):
             bef = time()
             self.population.append(self.__generate_indv())
-            print("indv_%0*d" % (len(str(self.population_size)), i+1), self.population[i]['fitness'], time() - bef)
+            if(self.print):
+                print("indv_%0*d" % (len(str(self.population_size)), i+1), self.population[i]['fitness'], time() - bef)
 
-        print("Mutation")
+        if(self.print):
+            print("Mutation")
         for i in range(self.population_size):
             bef = time()
             self.population[i] = self.__mutation(self.population[i])
-            print("indv_%0*d" % (len(str(self.population_size)), i+1), self.population[i]['fitness'], time() - bef)
+            if(self.print):
+                print("indv_%0*d" % (len(str(self.population_size)), i+1), self.population[i]['fitness'], time() - bef)
 
-        print("Generation 0")
-        print("\t", "Best fitness =", max([x['fitness'] for x in self.population]))
+        if(self.print):
+            print("Generation 0")
+            print("\t", "Best fitness =", max([x['fitness'] for x in self.population]))
         for i in range(self.generations):
-            print("Generation", i)
+            if(self.print):
+                print("Generation", i + 1)
             bef = time()
             self. __selection()
-            print("\t", "Time in selection = %.2f s" % (time() - bef))
-            print("\t", "Best fitness =", max([x['fitness'] for x in self.population]))
-            print("\t", "Average fitness =", sum([x['fitness'] for x in self.population])/self.population_size)
+            if(self.print):
+                print("\t", "Time in selection = %.2f s" % (time() - bef))
+                print("\t", "Best fitness =", max([x['fitness'] for x in self.population]))
+                print("\t", "Average fitness =", sum([x['fitness'] for x in self.population])/self.population_size)
+
+        maxi = 0
+        for indv in self.population:
+            if(indv['fitness'] > maxi):
+                maxi = indv['fitness']
+                indv_best = indv    
+
+        return indv_best['gene']
