@@ -1,4 +1,4 @@
-import gen_dummy as gen
+import proc_img as gen
 import ga
 import numpy as np
 import random
@@ -24,9 +24,9 @@ def eval_indv(gene, dataset):
 
 dataset = []
 # dataset_ids = ["test", "test2", "test3", "test4_n_100", "test5_n_1000"]
-dataset_ids = ["test6_odd_0.008_n_10000"]
+dataset_ids = ["ga_list_img_batch_n_100_r_35_p_0-01_train"]
 for id in dataset_ids:
-    dataset.extend(gen.gen_dummy.get_dataset(id))
+    dataset.extend(gen.procImg.get_dataset(id))
 
 results = []
 data = []
@@ -39,7 +39,7 @@ for i in range(5):
     ga_now = ga.ga(random.choices(dataset, k=1000),
                 population_size=100,
                 mutation_factor=0.01,
-                generations=100,
+                generations=20,
                 print=True)
     best_gene = ga_now.run()
     print(i+1, "eval = %.3f %%" % (eval_indv(best_gene, dataset)*100))
