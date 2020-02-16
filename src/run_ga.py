@@ -1,4 +1,4 @@
-import proc_img as gen
+import gen_dummy as gen
 import ga
 import numpy as np
 import random
@@ -22,28 +22,25 @@ def eval_indv(gene, dataset):
     # print(fitness/len(self.dataset_hist))
     return fitness/len(dataset_hist)
 
-dataset = []
-# dataset_ids = ["test", "test2", "test3", "test4_n_100", "test5_n_1000"]
-dataset_ids = ["ga_list_img_batch_n_100_r_35_p_0-01_train"]
-for id in dataset_ids:
-    dataset.extend(gen.procImg.get_dataset(id))
+dataset_id = "ga_list_img_batch_n_100_r_35_p_0-01_train"
+dataset = gen.procImg.get_dataset(dataset_id)
 
-results = []
-data = []
-lst = []
 seed = random.randint(0, 2**64)
 # seed = 10854117184287281751
 random.seed(seed)
-for i in range(5):
-    ga_now = None
-    ga_now = ga.ga(random.choices(dataset, k=1000),
-                population_size=100,
-                mutation_factor=0.01,
-                generations=20,
-                print=True)
-    best_gene = ga_now.run()
-    print(i+1, "eval = %.3f %%" % (eval_indv(best_gene, dataset)*100))
-    results.append(eval_indv(best_gene, dataset)*100)
-    lst.append(deepcopy(best_gene))
+ga_now = None
+k = 10000
+population_size = 200
+generations = 200
+mutation_factor = 0.01
+ga_name = "%s_k_%d_pop_%d_gen_%d_mut_%.4f" % (dataset_id, k, population_size, generations, mutation_factor)
+print(ga_name)
+ga_now = ga.ga(random.choices(dataset, k=k),
+            population_size=population_size,
+            mutation_factor=mutation_factor,
+            generations=generations,
+            print=True)
 
-print(results)
+ga_now.show_history('ga_history_1581732313')
+
+history = ga_now.run(ga_name)
