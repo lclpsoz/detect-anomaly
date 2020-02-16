@@ -23,7 +23,7 @@ def eval_indv(gene, dataset):
     return fitness/len(dataset_hist)
 
 dataset_id = "ga_list_img_batch_n_100_r_35_p_0-01_train"
-dataset = gen.procImg.get_dataset(dataset_id)
+dataset = gen.genDummy.get_dataset(dataset_id)
 
 seed = random.randint(0, 2**64)
 # seed = 10854117184287281751
